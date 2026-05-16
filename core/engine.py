@@ -53,7 +53,8 @@ class ScanEngine:
         self.validator = None
         self.start_time = None
         self.end_time = None
-        self.output_dir = args.output or DEFAULT_OUTPUT_DIR
+        self.output_base = args.output or DEFAULT_OUTPUT_DIR
+        self.output_dir = None  # Set after target validation
         self.threads = args.threads or DEFAULT_THREADS
         self.timeout = args.timeout or DEFAULT_TIMEOUT
         self.depth = args.depth or DEFAULT_CRAWL_DEPTH
@@ -143,8 +144,12 @@ class ScanEngine:
         }
         self.results["target"] = self.target
 
-        # Prepare output directory
+        # Prepare unique output directory per scan
+        safe_target = self.target["domain"].replace(".", "_").replace("/", "_")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.output_dir = os.path.join(self.output_base, f"{safe_target}_{timestamp}")
         os.makedirs(self.output_dir, exist_ok=True)
+        Logger.info(f"Output directory: {self.output_dir}")
 
         # ── Phase 1: Reconnaissance ────────────────────────────
         if not self.args.skip_recon:

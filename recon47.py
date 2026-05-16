@@ -134,7 +134,18 @@ Examples:
         help="Suppress ASCII banner"
     )
 
-    return parser.parse_args()
+    # Show help if no arguments provided
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(0)
+
+    args = parser.parse_args()
+
+    # Validate target is provided
+    if not args.target:
+        parser.error("the following arguments are required: -t/--target")
+
+    return args
 
 
 def main():
