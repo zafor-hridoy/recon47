@@ -27,34 +27,20 @@
 
 ## 📸 Preview
 
-<details>
-<summary>🖥️ CLI — Hacker-Themed Terminal Output (click to expand)</summary>
-<br>
+### CLI — Hacker-Themed Terminal
+<p align="center">
+  <img src="screenshots/cli_banner.png" alt="Recon47 CLI Banner" width="80%"/>
+</p>
 
-```
-    ____                        __ __  ______
-   / __ \___  _________  ____  / // / /__  __/
-  / /_/ / _ \/ ___/ __ \/ __ \/ // /_   / /
- / _, _/  __/ /__/ /_/ / / / /__  __/  / /
-/_/ |_|\___/\___/\____/_/ /_/  /_/    /_/
+### Vulnerability Scanning in Action
+<p align="center">
+  <img src="screenshots/cli_scan.png" alt="Recon47 Vulnerability Scanning" width="80%"/>
+</p>
 
-  ═══════════════════════════════════════════
-  🔱 Automated Recon & Vulnerability Scanner
-  Version 1.0.0 | Author: Xaff
-  ═══════════════════════════════════════════
-```
-
-<img src="screenshots/cli_scan.png" alt="CLI Scanning" width="100%"/>
-
-</details>
-
-<details>
-<summary>📊 HTML Report — Interactive Dashboard (click to expand)</summary>
-<br>
-
-<img src="screenshots/html_report.png" alt="HTML Report Dashboard" width="100%"/>
-
-</details>
+### HTML Report — Interactive Dashboard
+<p align="center">
+  <img src="screenshots/html_report.png" alt="Recon47 HTML Report Dashboard" width="100%"/>
+</p>
 
 ---
 
