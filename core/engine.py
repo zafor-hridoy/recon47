@@ -94,6 +94,10 @@ class ScanEngine:
             Logger.banner()
             Logger.disclaimer()
 
+        # Initialize SecLists wordlists
+        from core.seclists import SecListsManager
+        SecListsManager.initialize()
+
         # Validate target
         Logger.phase("TARGET VALIDATION", "🎯")
         try:

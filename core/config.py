@@ -14,7 +14,7 @@ TOOL_DESCRIPTION = "Automated Reconnaissance & Vulnerability Scanner"
 
 # ─── Default Scan Settings ─────────────────────────────────────
 DEFAULT_THREADS = 10
-DEFAULT_TIMEOUT = 10  # seconds
+DEFAULT_TIMEOUT = 15  # seconds (higher for CDN-heavy sites)
 DEFAULT_CRAWL_DEPTH = 3
 DEFAULT_RATE_LIMIT = 15  # requests per second
 DEFAULT_OUTPUT_DIR = "recon47_output"

@@ -13,14 +13,32 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
+# Setup virtual environment
 echo "[*] Creating virtual environment..."
 python3 -m venv venv
 
 echo "[*] Activating virtual environment..."
 source venv/bin/activate
 
-echo "[*] Installing dependencies..."
+echo "[*] Installing Python dependencies..."
 pip install -r requirements.txt
+
+# Check/install SecLists
+if [ -d "/usr/share/seclists" ]; then
+    echo "[✓] SecLists found at /usr/share/seclists"
+elif [ -d "$HOME/SecLists" ]; then
+    echo "[✓] SecLists found at ~/SecLists"
+else
+    echo "[*] Installing SecLists (industry-standard wordlists)..."
+    echo "    You can also install via: sudo apt install seclists"
+    read -p "    Auto-download SecLists from GitHub? (y/n): " choice
+    if [ "$choice" = "y" ] || [ "$choice" = "Y" ]; then
+        git clone --depth 1 https://github.com/danielmiessler/SecLists.git ~/SecLists
+        echo "[✓] SecLists installed to ~/SecLists"
+    else
+        echo "[!] Skipped. Install later with: sudo apt install seclists"
+    fi
+fi
 
 echo ""
 echo "[✓] Setup complete!"
