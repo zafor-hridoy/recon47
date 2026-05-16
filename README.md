@@ -146,19 +146,39 @@ Target Input → Validation → HTTP/HTTPS Probe
 - **pip** (Python package manager)
 - **Git**
 
-### Quick Setup
+### Quick Setup (Kali Linux — Recommended)
 
 ```bash
 # Clone the repository
 git clone https://github.com/zafor-hridoy/recon47.git
 cd recon47
 
-# Install dependencies
-pip3 install -r requirements.txt
+# One-command setup (creates venv + installs deps)
+chmod +x setup.sh && ./setup.sh
 
-# Run your first scan
+# Activate and run
+source venv/bin/activate
 python3 recon47.py -t example.com
 ```
+
+### Manual Setup (with Virtual Environment)
+
+```bash
+git clone https://github.com/zafor-hridoy/recon47.git
+cd recon47
+
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run
+python3 recon47.py -t example.com
+```
+
+> ⚠️ **Kali Linux Note:** Modern Kali uses PEP 668 which blocks system-wide pip installs. Always use a virtual environment (`python3 -m venv venv`) as shown above.
 
 ### Optional: External Scanners (for full vuln scanning)
 
