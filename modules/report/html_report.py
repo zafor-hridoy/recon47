@@ -91,6 +91,8 @@ th{background:var(--surface);color:var(--green);padding:10px 12px;text-align:lef
 td{padding:8px 12px;border:1px solid var(--border);vertical-align:top;word-break:break-word}
 tr:nth-child(even){background:rgba(255,255,255,0.01)}
 tr:hover{background:rgba(0,255,65,0.02)}
+tr.vuln-row{background:rgba(255,0,64,0.08);border-left:3px solid var(--red)}
+tr.warn-row{background:rgba(255,170,0,0.06);border-left:3px solid var(--amber)}
 .badge{display:inline-block;padding:2px 10px;border-radius:3px;font-size:0.75em;font-weight:700;text-transform:uppercase;letter-spacing:1px}
 .badge-critical{background:rgba(255,0,64,0.15);color:#ff0040;border:1px solid rgba(255,0,64,0.3)}
 .badge-high{background:rgba(255,68,68,0.15);color:#ff4444;border:1px solid rgba(255,68,68,0.3)}
@@ -200,13 +202,16 @@ tr:hover{background:rgba(0,255,65,0.02)}
 
     def _recon_section(self, recon):
         parts = []
-        # Subdomains
+        # Subdomains — sorted by hacker priority
         subs = recon.get("subdomains",[])
         if subs:
+            subs_sorted = self._sort_subdomains(subs)
             rows = ""
-            for s in subs[:50]:
+            for s in subs_sorted:
                 if isinstance(s, dict):
-                    rows += f"<tr><td>{self._esc(s.get('subdomain',''))}</td><td>{self._esc(s.get('ip','N/A'))}</td><td>{self._esc(s.get('status',''))}</td></tr>"
+                    ip = s.get('ip','N/A') or 'N/A'
+                    cls = self._subdomain_row_class(s)
+                    rows += f"<tr class='{cls}'><td>{self._esc(s.get('subdomain',''))}</td><td>{self._esc(ip)}</td><td>{self._esc(s.get('status',''))}</td></tr>"
                 else:
                     rows += f"<tr><td>{self._esc(str(s))}</td><td>-</td><td>-</td></tr>"
             parts.append(f"""<h3 class="collapsible" onclick="toggle(this)">Subdomains ({len(subs)})</h3>
@@ -278,38 +283,41 @@ tr:hover{background:rgba(0,255,65,0.02)}
         parts = []
         urls = crawler.get("urls",[])
         if urls:
-            rows = "".join(f"<tr><td>{self._esc(u[:120])}</td></tr>" for u in urls[:50])
+            rows = "".join(f"<tr><td>{self._esc(u)}</td></tr>" for u in urls)
             parts.append(f"""<h3 class="collapsible" onclick="toggle(this)">Crawled URLs ({len(urls)})</h3>
 <div class="collapsible-content"><table><thead><tr><th>URL</th></tr></thead><tbody>{rows}</tbody></table></div>""")
 
         dirs = crawler.get("directories",[])
         if dirs:
+            dirs_sorted = self._sort_directories(dirs)
             rows = ""
-            for d in dirs[:30]:
+            for d in dirs_sorted:
                 if isinstance(d, dict):
-                    rows += f"<tr><td>{self._esc(d.get('path',''))}</td><td>{d.get('status_code','')}</td><td>{self._esc(d.get('content_type','')[:40])}</td></tr>"
+                    sc = d.get('status_code',0)
+                    cls = 'vuln-row' if sc == 200 else ('warn-row' if sc == 403 else '')
+                    rows += f"<tr class='{cls}'><td>{self._esc(d.get('path',''))}</td><td>{sc}</td><td>{self._esc(d.get('content_type','')[:40])}</td></tr>"
             parts.append(f"""<h3 class="collapsible" onclick="toggle(this)">Directories ({len(dirs)})</h3>
 <div class="collapsible-content"><table><thead><tr><th>Path</th><th>Status</th><th>Type</th></tr></thead><tbody>{rows}</tbody></table></div>""")
 
         js_files = crawler.get("js_files",[])
         if js_files:
-            rows = "".join(f"<tr><td>{self._esc(j[:120])}</td></tr>" for j in js_files[:30])
+            rows = "".join(f"<tr><td>{self._esc(j)}</td></tr>" for j in js_files)
             parts.append(f"""<h3 class="collapsible" onclick="toggle(this)">JavaScript Files ({len(js_files)})</h3>
 <div class="collapsible-content"><table><thead><tr><th>URL</th></tr></thead><tbody>{rows}</tbody></table></div>""")
 
         secrets = crawler.get("js_secrets",[])
         if secrets:
             rows = ""
-            for s in secrets[:20]:
+            for s in secrets:
                 if isinstance(s, dict):
-                    rows += f"<tr><td><span class='badge badge-high'>{self._esc(s.get('type',''))}</span></td><td>{self._esc(s.get('value','')[:60])}</td><td>{self._esc(s.get('file','').split('/')[-1])}</td></tr>"
+                    rows += f"<tr><td><span class='badge badge-high'>{self._esc(s.get('type',''))}</span></td><td>{self._esc(s.get('value',''))}</td><td>{self._esc(s.get('file','').split('/')[-1])}</td></tr>"
             parts.append(f"""<h3 class="collapsible" onclick="toggle(this)">JS Secrets ({len(secrets)})</h3>
 <div class="collapsible-content"><table><thead><tr><th>Type</th><th>Value</th><th>File</th></tr></thead><tbody>{rows}</tbody></table></div>""")
 
         params = crawler.get("parameters",[])
         if params:
             rows = ""
-            for p in params[:30]:
+            for p in params:
                 if isinstance(p, dict):
                     rows += f"<tr><td>{self._esc(p.get('name',''))}</td><td>{self._esc(', '.join(p.get('sources',[])))}</td><td>{self._esc(', '.join(p.get('methods',[])))}</td></tr>"
             parts.append(f"""<h3 class="collapsible" onclick="toggle(this)">Parameters ({len(params)})</h3>
@@ -384,3 +392,82 @@ document.querySelectorAll('.collapsible-content').forEach(function(e){{e.style.d
     @staticmethod
     def _esc(text):
         return html.escape(str(text)) if text else ""
+
+    @staticmethod
+    def _sort_subdomains(subs):
+        """Sort subdomains by hacker priority: internal IPs, dev/staging/admin first."""
+        INTERESTING_KEYWORDS = [
+            'admin', 'dev', 'staging', 'test', 'beta', 'internal', 'intranet',
+            'vpn', 'remote', 'jenkins', 'git', 'ci', 'deploy', 'debug',
+            'api', 'dashboard', 'portal', 'login', 'auth', 'sso', 'db',
+            'database', 'mysql', 'mongo', 'redis', 'elastic', 'grafana',
+            'backup', 'old', 'legacy', 'phpmyadmin', 'cpanel', 'ftp',
+            'mail', 'smtp', 'webmail', 'ssh', 'shell', 'console', 'monitor',
+        ]
+
+        def score(s):
+            if not isinstance(s, dict):
+                return 99
+            ip = s.get('ip', '') or ''
+            name = s.get('subdomain', '').lower()
+            status = s.get('status', '')
+
+            # Unresolved = lowest priority
+            if status != 'active':
+                return 90
+
+            priority = 50  # default active
+
+            # Internal IPs are gold — highest priority
+            if ip.startswith('10.') or ip.startswith('192.168.') or ip.startswith('172.'):
+                priority = 0
+            # Interesting names
+            for kw in INTERESTING_KEYWORDS:
+                if kw in name:
+                    priority = min(priority, 10)
+                    break
+            return priority
+
+        return sorted(subs, key=score)
+
+    @staticmethod
+    def _subdomain_row_class(s):
+        """Return CSS class for highlighting interesting subdomains."""
+        if not isinstance(s, dict):
+            return ''
+        ip = s.get('ip', '') or ''
+        name = s.get('subdomain', '').lower()
+        if ip.startswith('10.') or ip.startswith('192.168.') or ip.startswith('172.'):
+            return 'vuln-row'
+        interesting = ['admin', 'dev', 'staging', 'test', 'beta', 'internal',
+                       'vpn', 'jenkins', 'git', 'api', 'dashboard', 'login',
+                       'db', 'backup', 'ftp', 'ssh', 'console', 'debug']
+        for kw in interesting:
+            if kw in name:
+                return 'warn-row'
+        return ''
+
+    @staticmethod
+    def _sort_directories(dirs):
+        """Sort directories: 200 first (accessible), then 403 (forbidden but exists), then 301."""
+        STATUS_PRIORITY = {200: 0, 403: 1, 405: 2, 301: 3, 302: 4}
+        INTERESTING_PATHS = [
+            'admin', 'config', 'backup', '.env', '.git', 'database', 'debug',
+            'phpmyadmin', 'console', 'shell', 'upload', 'api', 'private',
+            'secret', 'log', 'password', 'token', 'key', 'credential',
+        ]
+
+        def score(d):
+            if not isinstance(d, dict):
+                return 99
+            sc = d.get('status_code', 999)
+            path = d.get('path', '').lower()
+
+            base = STATUS_PRIORITY.get(sc, 5)
+            # Bump interesting paths higher within their status group
+            for kw in INTERESTING_PATHS:
+                if kw in path:
+                    return base * 10  # Keep status priority but sort interesting first
+            return base * 10 + 1
+
+        return sorted(dirs, key=score)

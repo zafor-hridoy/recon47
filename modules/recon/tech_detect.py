@@ -25,14 +25,19 @@ class TechDetector:
 
     def run(self):
         """Run technology detection and return list of detected technologies."""
-        try:
-            resp = self.session.get(
-                self.url, timeout=self.timeout,
-                verify=False, allow_redirects=True
-            )
-        except requests.RequestException as e:
-            Logger.warning(f"Could not fetch {self.url}: {e}")
-            return self.detected
+        resp = None
+        for attempt in range(3):
+            try:
+                self.session.headers["User-Agent"] = random.choice(USER_AGENTS)
+                resp = self.session.get(
+                    self.url, timeout=max(self.timeout, 20),
+                    verify=False, allow_redirects=True
+                )
+                break
+            except requests.RequestException as e:
+                if attempt == 2:
+                    Logger.warning(f"Could not fetch {self.url} after 3 attempts: {e}")
+                    return self.detected
 
         # Get response components
         headers_str = str(resp.headers).lower()

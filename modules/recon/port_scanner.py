@@ -6,7 +6,7 @@ TCP connect port scanner with service detection and multi-threading.
 
 import socket
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from core.config import TOP_100_PORTS
+from core.config import TOP_PORTS
 from core.logger import Logger
 
 
@@ -36,9 +36,9 @@ class PortScanner:
 
     def __init__(self, target, ports=None, threads=10, timeout=3):
         self.target = target
-        self.ports = ports or TOP_100_PORTS
-        self.threads = threads
-        self.timeout = min(timeout, 5)  # Cap at 5s for port scanning
+        self.ports = ports or TOP_PORTS
+        self.threads = max(threads, 50)  # Min 50 threads for port scanning speed
+        self.timeout = min(timeout, 3)  # Cap at 3s for port scanning
         self.results = []
 
     def run(self):

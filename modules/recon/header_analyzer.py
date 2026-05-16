@@ -32,14 +32,19 @@ class HeaderAnalyzer:
             "cookies": []
         }
 
-        try:
-            resp = self.session.get(
-                self.url, timeout=self.timeout,
-                verify=False, allow_redirects=True
-            )
-        except requests.RequestException as e:
-            Logger.warning(f"Could not fetch headers from {self.url}: {e}")
-            return results
+        resp = None
+        for attempt in range(3):
+            try:
+                self.session.headers["User-Agent"] = random.choice(USER_AGENTS)
+                resp = self.session.get(
+                    self.url, timeout=max(self.timeout, 20),
+                    verify=False, allow_redirects=True
+                )
+                break
+            except requests.RequestException as e:
+                if attempt == 2:
+                    Logger.warning(f"Could not fetch headers from {self.url} after 3 attempts: {e}")
+                    return results
 
         # Store raw headers
         results["raw_headers"] = dict(resp.headers)
