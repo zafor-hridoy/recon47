@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  recon47:
+    build: .
+    container_name: recon47
+    volumes:
+      - ./recon47_output:/app/recon47_output
+    network_mode: host
+    stdin_open: true
+    tty: true
+    # Usage: docker compose run recon47 -t example.com
