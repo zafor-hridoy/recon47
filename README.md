@@ -2,207 +2,85 @@
 
 **Automated Reconnaissance & Vulnerability Scanner**
 
-> **Tool Name:** Recon47  
-> **Author:** Xaff  
-> **Version:** 1.0.0  
-> **Language:** Python 3.10+  
-> **Type:** CLI-based Automated Reconnaissance & Vulnerability Scanner
+> **Author:** Xaff | **Version:** 1.0.0 | **Language:** Python 3.10+
 
-Recon47 is a **production-ready, modular, CLI-based** tool that automates the entire reconnaissance and vulnerability scanning workflow for web targets. It accepts a domain, subdomain, URL, or IP address and performs a comprehensive security assessment — from passive/active reconnaissance to vulnerability scanning — then generates a **stunning hacker-themed HTML report** with PDF download capability.
+Recon47 is a **production-ready, modular, CLI-based** automated reconnaissance and vulnerability scanning tool. Give it any target — domain, subdomain, URL, or IP address — and it performs a full security assessment, then generates a **hacker-themed HTML report** you can download as PDF.
 
-> 📄 **Full Product Requirements Document:** See [`recon47_prd.md`](recon47_prd.md) for the complete PRD with architecture diagrams, module specifications, and design decisions.
+> 📄 See [`recon47_prd.md`](recon47_prd.md) for the full Product Requirements Document.
 
 ---
 
-## 📸 Sample Output
+## 📸 What You Get
 
-### Console Output
-```
-╔═════════════════════════════════ 🔱 RECON47 COMPLETE ════════════════════════════╗
-║                                                                                  ║
-║  ✓ Scan completed successfully!                                                  ║
-║  Duration: 61.6s                                                                 ║
-║  Report:   recon47_output/report.html                                            ║
-║                                                                                  ║
-╚══════════════════════════════════════════════════════════════════════════════════╝
-```
-
-### HTML Report Features
-- 🎨 Dark "Cyber Matrix" hacker theme with animated scanline
-- 📊 Interactive dashboard with severity donut chart  
-- 📂 Collapsible/expandable sections for all findings
-- 🔴 Color-coded severity badges (CRITICAL / HIGH / MEDIUM / LOW / INFO)
-- 📥 **Download PDF** button (one-click print-to-PDF)
-- 📱 Responsive design for all screen sizes
+- **2000+ subdomains** discovered via 6 passive sources + SecLists DNS brute-force
+- **1000+ ports** scanned (Nmap top 1000)
+- **Technology fingerprinting** with WAF bypass headers
+- **3000+ directory paths** tested via SecLists wordlists
+- **9 vulnerability checks** (CORS, XSS, SQLi, clickjacking, open redirect, etc.)
+- **Hacker-themed HTML report** with severity chart, smart sorting, and PDF download
 
 ---
 
-## ✨ Features
+## ⚡ Quick Start (First-Time Setup)
 
-### 🔍 Reconnaissance Modules
-| Module | Technique | Description |
-|--------|-----------|-------------|
-| **Subdomain Enumeration** | crt.sh, HackerTarget, RapidDNS + DNS brute-force | Multi-source passive + active subdomain discovery |
-| **Port Scanner** | Multi-threaded TCP connect scan | Top 100 ports with service detection & banner grabbing |
-| **Technology Detection** | HTTP headers, meta tags, body analysis | Wappalyzer-style fingerprinting for 30+ technologies |
-| **Header Security Audit** | Security header analysis | 8 security headers checked + cookie analysis + info disclosure |
-| **DNS Reconnaissance** | Full DNS record enumeration | A, AAAA, CNAME, MX, NS, TXT, SOA, PTR records |
-| **WHOIS Lookup** | Domain registration data | Registrar, creation/expiry dates, nameservers, org info |
-
-### 🕷️ Crawling & Discovery Modules
-| Module | Technique | Description |
-|--------|-----------|-------------|
-| **Web Crawler** | Recursive BFS with depth control | Smart deduplication, JS file extraction, form discovery |
-| **Directory Bruteforce** | Wordlist-based path discovery | 80+ common paths with status code filtering |
-| **JavaScript Analyzer** | Regex pattern matching | Extract API keys, secrets, endpoints from JS files |
-| **Parameter Extractor** | URL + form field mining | Deduplicates params from crawled URLs and form inputs |
-
-### ⚡ Vulnerability Scanner Modules
-| Module | Technique | Description |
-|--------|-----------|-------------|
-| **Custom Security Checks** | 9 built-in checks | CORS, clickjacking, XSS reflection, SQL error detection, open redirect, sensitive files, HTTP methods, info disclosure, missing headers |
-| **Nikto Integration** | External CLI wrapper | Wraps Nikto scanner, parses JSON output (optional) |
-| **Nuclei Integration** | External CLI wrapper | Wraps Nuclei scanner, parses JSONL output (optional) |
-
-### 🎁 Bonus Features Implemented
-| Feature | Implementation |
-|---------|----------------|
-| ✅ Recursive crawling | Depth-controlled BFS crawler |
-| ✅ Multi-threading | ThreadPoolExecutor across all modules |
-| ✅ Smart deduplication | URL normalization + set-based dedup |
-| ✅ HTML report generation | Full hacker-themed report with charts |
-| ✅ PDF download | Browser print-to-PDF with expanded sections |
-| ✅ Stealth scanning | Rate-limiting, random User-Agents, jitter delays |
-| ✅ Advanced attack surface | JS secret extraction, parameter mining |
-| ✅ Docker support | Dockerfile + docker-compose.yml |
-| ✅ HTTP/HTTPS auto-detection | Automatic fallback if HTTPS fails |
-
----
-
-## 🏗️ Architecture
-
-```
-recon47/
-├── recon47.py                        # Main CLI entry point
-├── requirements.txt                  # Python dependencies
-├── Dockerfile                        # Docker support
-├── docker-compose.yml                # Docker compose
-├── README.md                         # This file
-├── recon47_prd.md                    # Product Requirements Document
-│
-├── core/                             # Core infrastructure
-│   ├── __init__.py
-│   ├── engine.py                     # Scan orchestrator (module pipeline)
-│   ├── config.py                     # Configuration, wordlists, signatures
-│   ├── logger.py                     # Rich-based console output
-│   └── validator.py                  # Input validation & normalization
-│
-└── modules/                          # Feature modules
-    ├── __init__.py
-    ├── recon/                        # Reconnaissance
-    │   ├── subdomain_enum.py         # Subdomain discovery
-    │   ├── port_scanner.py           # TCP port scanning
-    │   ├── tech_detect.py            # Technology fingerprinting
-    │   ├── header_analyzer.py        # Security header audit
-    │   ├── dns_recon.py              # DNS record enumeration
-    │   └── whois_lookup.py           # WHOIS lookup
-    ├── crawler/                      # Crawling & Discovery
-    │   ├── crawler.py                # Recursive web crawler
-    │   ├── js_analyzer.py            # JS secret extraction
-    │   ├── param_extractor.py        # Parameter mining
-    │   └── dir_bruteforce.py         # Directory discovery
-    ├── scanners/                     # Vulnerability Scanning
-    │   ├── nikto_scanner.py          # Nikto CLI integration
-    │   ├── nuclei_scanner.py         # Nuclei CLI integration
-    │   └── custom_checks.py          # 9 built-in security checks
-    └── report/                       # Report Generation
-        ├── html_report.py            # Hacker-themed HTML report
-        └── json_export.py            # Machine-readable JSON export
-```
-
-### Scan Pipeline Flow
-```
-Target Input → Validation → HTTP/HTTPS Probe
-    │
-    ├── Phase 1: RECONNAISSANCE
-    │   └── WHOIS → DNS → Subdomains → Ports → Tech Detection → Headers
-    │
-    ├── Phase 2: CRAWLING & DISCOVERY
-    │   └── Web Crawler → Dir Bruteforce → JS Analysis → Param Extraction
-    │
-    ├── Phase 3: VULNERABILITY SCANNING
-    │   └── Custom Checks → Nikto (opt) → Nuclei (opt)
-    │
-    └── Phase 4: REPORT GENERATION
-        └── Statistics → JSON Export → HTML Report
-```
-
----
-
-## 📦 Installation
-
-### Prerequisites
-- **Python 3.10+**
-- **pip** (Python package manager)
-- **Git**
-
-### Quick Setup (Kali Linux — Recommended)
-
-```bash
-# Clone the repository
-git clone https://github.com/zafor-hridoy/recon47.git
-cd recon47
-
-# One-command setup (creates venv + installs deps)
-chmod +x setup.sh && ./setup.sh
-
-# Activate and run
-source venv/bin/activate
-python3 recon47.py -t example.com
-```
-
-### Manual Setup (with Virtual Environment)
+### Step 1: Clone the Repository
 
 ```bash
 git clone https://github.com/zafor-hridoy/recon47.git
 cd recon47
-
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run
-python3 recon47.py -t example.com
 ```
 
-> ⚠️ **Kali Linux Note:** Modern Kali uses PEP 668 which blocks system-wide pip installs. Always use a virtual environment (`python3 -m venv venv`) as shown above.
-
-### Optional: External Scanners (for full vuln scanning)
+### Step 2: Run the Setup Script
 
 ```bash
-# Nikto (Kali Linux — pre-installed)
-sudo apt install nikto
-
-# Nuclei
-go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
-# or download from: https://github.com/projectdiscovery/nuclei/releases
+chmod +x setup.sh
+./setup.sh
 ```
+
+This will:
+- Create a Python virtual environment (`venv/`)
+- Install all Python dependencies
+- Check for SecLists and offer to download if not found
+
+> **What is SecLists?** It's the industry-standard collection of wordlists used by penetration testers worldwide. Recon47 uses it for subdomain brute-force and directory discovery. On Kali Linux, you can also install it via `sudo apt install seclists`.
+
+### Step 3: Activate the Virtual Environment
+
+```bash
+source venv/bin/activate
+```
+
+> ⚠️ **You must run this command every time you open a new terminal before using Recon47.**
+
+### Step 4: Run Your First Scan
+
+```bash
+python3 recon47.py -t scanme.nmap.org
+```
+
+### Step 5: View the Report
+
+After the scan completes, open the HTML report in your browser:
+
+```bash
+# The tool will print the report path, e.g.:
+# Report: recon47_output/scanme_nmap_org_20260517_030000/report.html
+
+# Open it in Firefox (Kali default browser)
+firefox recon47_output/*/report.html
+```
+
+### Step 6: Download as PDF
+
+In the HTML report, click the **"Download PDF"** button → all sections expand → browser print dialog opens → choose **"Save as PDF"**.
 
 ---
 
-## 🚀 Usage
+## 🚀 Usage Examples
 
-### Basic Scan
+### Basic Scan (any domain)
 ```bash
 python3 recon47.py -t example.com
-```
-
-### Full Scan with External Tools
-```bash
-python3 recon47.py -t example.com --nikto --nuclei -o results
 ```
 
 ### Scan an IP Address
@@ -210,41 +88,43 @@ python3 recon47.py -t example.com --nikto --nuclei -o results
 python3 recon47.py -t 192.168.1.1
 ```
 
+### Scan a Full URL
+```bash
+python3 recon47.py -t https://target.com
+```
+
+### Full Scan with External Tools
+```bash
+python3 recon47.py -t example.com --nikto --nuclei
+```
+
 ### Stealth Mode (slower, evasive)
 ```bash
-python3 recon47.py -t example.com --stealth --rate-limit 5 --threads 3
+python3 recon47.py -t example.com --stealth
 ```
 
-### Custom Options
+### Custom Thread Count and Depth
 ```bash
-python3 recon47.py -t https://example.com \
-    --threads 20 \
-    --timeout 15 \
-    --depth 5 \
-    -o my_scan_results
+python3 recon47.py -t example.com --threads 20 --depth 5
 ```
 
-### Skip Phases
+### Skip Specific Phases
 ```bash
-# Only reconnaissance
+# Only reconnaissance (no crawling or vuln scanning)
 python3 recon47.py -t example.com --skip-crawl --skip-vuln
 
-# Only crawling + vuln scan
+# Only crawling + vuln scanning (no recon)
 python3 recon47.py -t example.com --skip-recon
 ```
 
-### Docker
+### Show Help
 ```bash
-# Build
-docker build -t recon47 .
-
-# Run
-docker run --rm -v $(pwd)/output:/app/recon47_output recon47 -t example.com
+python3 recon47.py -h
 ```
 
 ---
 
-## 📖 CLI Reference
+## 📖 CLI Options Reference
 
 ```
 usage: recon47.py [-h] -t TARGET [-o OUTPUT] [--threads N] [--timeout N]
@@ -257,9 +137,9 @@ Required:
   -t, --target TARGET     Target domain, URL, or IP address
 
 Scan Options:
-  -o, --output OUTPUT     Output directory (default: recon47_output)
+  -o, --output OUTPUT     Output base directory (default: recon47_output)
   --threads N             Number of threads (default: 10)
-  --timeout N             Request timeout in seconds (default: 10)
+  --timeout N             Request timeout in seconds (default: 15)
   --depth N               Crawler depth (default: 3)
   --rate-limit N          Max requests per second (default: 15)
 
@@ -269,8 +149,8 @@ Phase Control:
   --skip-vuln             Skip vulnerability scanning
 
 External Scanners:
-  --nikto                 Enable Nikto scanner
-  --nuclei                Enable Nuclei scanner
+  --nikto                 Enable Nikto scanner (must be installed)
+  --nuclei                Enable Nuclei scanner (must be installed)
 
 Stealth & Display:
   --stealth               Enable stealth mode (random delays, User-Agent rotation)
@@ -280,35 +160,173 @@ Stealth & Display:
 
 ---
 
-## 📊 Output & Reporting
+## ✨ Features
 
-Recon47 generates two report files in the output directory:
+### 🔍 Reconnaissance (6 Modules)
+| Module | What It Does |
+|--------|-------------|
+| **WHOIS Lookup** | Domain registration, registrar, creation/expiry dates, nameservers |
+| **DNS Recon** | A, AAAA, CNAME, MX, NS, TXT, SOA, PTR records |
+| **Subdomain Enum** | 6 passive sources (crt.sh, HackerTarget, RapidDNS, AlienVault OTX, URLScan.io, Anubis-DB) + SecLists DNS brute-force (5000 words) |
+| **Port Scanner** | Nmap top 1000 ports with 50-thread parallel scanning + banner grabbing |
+| **Tech Detection** | Wappalyzer-style fingerprinting for 30+ technologies with WAF bypass headers |
+| **Header Audit** | 8 security headers checked + cookie analysis + info disclosure detection |
 
-| File | Format | Description |
-|------|--------|-------------|
-| `report.html` | HTML | Interactive hacker-themed report with donut chart, expandable sections, severity badges, and **PDF download** |
-| `results.json` | JSON | Machine-readable structured data for automation pipelines |
+### 🕷️ Crawling & Discovery (4 Modules)
+| Module | What It Does |
+|--------|-------------|
+| **Web Crawler** | Recursive BFS crawler with depth control and smart deduplication |
+| **Dir Bruteforce** | SecLists `raft-medium-directories.txt` (3000 paths) |
+| **JS Analyzer** | Extract API keys, secrets, and endpoints from JavaScript files |
+| **Param Extractor** | Mine URL query parameters and HTML form fields |
 
-### HTML Report Sections
-1. **Dashboard** — Summary statistics (subdomains, ports, technologies, URLs, vulnerabilities, duration)
-2. **Target Information** — Domain, IP, URL, scheme
-3. **Reconnaissance** — Subdomains, open ports, technologies, DNS records, WHOIS, security headers
-4. **Crawling & Discovery** — Crawled URLs, directories, JS files, extracted parameters, JS secrets
-5. **Vulnerabilities** — All findings sorted by severity with expandable detail cards
-6. **Footer** — Scan metadata and disclaimer
+### ⚡ Vulnerability Scanning (3 Modules)
+| Module | What It Does |
+|--------|-------------|
+| **Custom Checks** | 9 built-in checks: CORS, clickjacking, XSS reflection, SQL error detection, open redirect, sensitive files, HTTP methods, info disclosure, missing headers |
+| **Nikto** | External web server scanner (optional, must be installed) |
+| **Nuclei** | Template-based vulnerability scanner (optional, must be installed) |
 
-### Downloading as PDF
-Click the **"Download PDF"** button in the report → all sections expand automatically → browser print dialog opens → **Save as PDF**.
+### 📊 Reporting (2 Modules)
+| Module | What It Does |
+|--------|-------------|
+| **HTML Report** | Hacker-themed dark report with severity donut chart, expandable sections, smart sorting, and PDF download |
+| **JSON Export** | Machine-readable structured data for automation pipelines |
+
+---
+
+## 🏗️ Project Structure
+
+```
+recon47/
+├── recon47.py                 # Main CLI entry point
+├── setup.sh                   # One-command Kali setup script
+├── requirements.txt           # Python dependencies
+├── recon47_prd.md             # Product Requirements Document
+├── README.md                  # This file
+├── Dockerfile                 # Docker support
+├── docker-compose.yml         # Docker compose
+├── .gitignore
+│
+├── core/                      # Core infrastructure
+│   ├── engine.py              # Scan orchestrator (phase pipeline)
+│   ├── config.py              # Config, wordlists, signatures, top 1000 ports
+│   ├── logger.py              # Rich-based console output
+│   ├── validator.py           # Input validation & HTTP/HTTPS fallback
+│   └── seclists.py            # SecLists auto-detection & download manager
+│
+└── modules/
+    ├── recon/                 # 6 reconnaissance modules
+    ├── crawler/               # 4 crawling & discovery modules
+    ├── scanners/              # 3 vulnerability scanner modules
+    └── report/                # HTML + JSON report generators
+```
+
+### Scan Pipeline
+```
+Target → Validation → HTTP/HTTPS Probe → SecLists Init
+  │
+  ├─ Phase 1: RECONNAISSANCE
+  │  └─ WHOIS → DNS → Subdomains → Ports (1000) → Tech → Headers
+  │
+  ├─ Phase 2: CRAWLING & DISCOVERY
+  │  └─ Crawler → Dir Bruteforce (3000 paths) → JS Analysis → Params
+  │
+  ├─ Phase 3: VULNERABILITY SCANNING
+  │  └─ 9 Custom Checks → Nikto (opt) → Nuclei (opt)
+  │
+  └─ Phase 4: REPORTING
+     └─ Statistics → JSON → HTML Report (with PDF download)
+```
+
+---
+
+## 📊 Output & Reports
+
+Each scan creates a **unique timestamped folder** so reports never overwrite each other:
+
+```
+recon47_output/
+├── bestbuy_com_20260517_030000/
+│   ├── report.html          # Interactive HTML report
+│   └── results.json         # Machine-readable JSON
+├── scanme_nmap_org_20260517_031500/
+│   ├── report.html
+│   └── results.json
+```
+
+### HTML Report Features
+- 🎨 Dark "Cyber Matrix" hacker theme with animated scanline
+- 📊 Dashboard with live statistics and severity donut chart
+- 🔴 **Red-highlighted rows** for subdomains with internal IPs (10.x, 192.168.x)
+- 🟡 **Amber-highlighted rows** for interesting subdomains (admin, dev, staging, vpn)
+- 📂 Smart sorting: most interesting/vulnerable findings always on top
+- 📥 One-click **Download PDF** button
+- 📱 Responsive design for all screen sizes
+
+---
+
+## 🔧 Optional: External Scanners
+
+These are optional and only used when you pass `--nikto` or `--nuclei` flags:
+
+```bash
+# Nikto (usually pre-installed on Kali)
+sudo apt install nikto
+
+# Nuclei
+go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+```
+
+---
+
+## 🐳 Docker (Alternative)
+
+```bash
+# Build
+docker build -t recon47 .
+
+# Run
+docker run --rm -v $(pwd)/output:/app/recon47_output recon47 -t example.com
+```
 
 ---
 
 ## 🛡️ Ethical Safeguards
 
-- ⚠️ **Authorization disclaimer** displayed on every scan
+- ⚠️ Authorization disclaimer displayed on every scan
 - 🔒 Rate-limiting enabled by default (15 req/s)
 - 🚫 No destructive payloads — read-only checks only
 - 🎭 User-Agent rotation to avoid fingerprinting
 - 📝 All scan activities logged with timestamps
+
+---
+
+## ❓ Troubleshooting
+
+### "externally-managed-environment" error on Kali
+Always use a virtual environment. Run `./setup.sh` or manually:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Technology Detection / Header Analysis times out
+Some sites (like BestBuy, Amazon) use aggressive WAFs (Akamai, Cloudflare) that block automated requests even with browser-like headers. This is expected — those WAFs require JavaScript execution which Python `requests` can't do. The tool will still collect subdomains, ports, DNS, and WHOIS data successfully.
+
+### "SecLists not found" warning
+Install SecLists:
+```bash
+sudo apt install seclists          # Kali/Debian
+# OR
+git clone --depth 1 https://github.com/danielmiessler/SecLists.git ~/SecLists
+```
+
+### Scan is slow
+- Port scanning 1000 ports takes ~60s depending on the target
+- Use `--skip-recon` or `--skip-crawl` to skip phases you don't need
+- Increase threads: `--threads 30`
 
 ---
 
@@ -318,10 +336,8 @@ Click the **"Download PDF"** button in the report → all sections expand automa
 
 - Only scan targets you have **explicit written permission** to test
 - Do **NOT** use this tool against unauthorized targets
-- Do **NOT** attempt to alter, delete, or destroy any data
 - Follow all applicable laws and ethical hacking guidelines
-
-The author assumes **no liability** for misuse of this tool.
+- The author assumes **no liability** for misuse of this tool
 
 ---
 
